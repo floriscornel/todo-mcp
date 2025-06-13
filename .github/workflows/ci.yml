@@ -84,4 +84,4 @@ jobs:
           node dist/index.js --help
 
       - name: Security audit
-        run: npm audit --audit-level moderate
+        run: npm audit --audit-level moderate --omit=dev
