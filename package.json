@@ -1,6 +1,6 @@
 {
   "name": "@floriscornel/todo-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -8,6 +8,7 @@
   },
   "files": [
     "dist/**/*",
+    "migrations/**/*",
     "README.md",
     "package.json"
   ],
