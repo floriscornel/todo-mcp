@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          # Clean install to handle platform-specific binary issues
+          rm -rf node_modules package-lock.json
+          npm install
+
+      - name: Run linting and formatting
+        run: |
+          # Install and run Biome directly
+          npx @biomejs/biome@1.9.4 check .
+
+      - name: Run type checking
+        run: npm run compile
+
+      - name: Run tests with JUnit output
+        run: |
+          # Run tests with coverage and generate JUnit XML for Codecov Test Analytics
+          npm run test:coverage:ci
+
+      - name: Upload coverage to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/coverage-final.json
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./test-results.xml
+
+      - name: Build
+        run: npm run build
+
+      - name: Test CLI functionality
+        run: |
+          node dist/index.js --help
+          node dist/index.js check 
+
+      - name: Security audit
+        run: npm audit --audit-level moderate
