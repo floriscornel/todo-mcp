@@ -18,10 +18,7 @@
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf dist",
     "compile": "tsc",
-    "dev": "node --watch src/index.ts",
-    "auth": "node dist/index.js authenticate",
-    "auth:check": "node dist/index.js check",
-    "auth:logout": "node dist/index.js logout",
+    "dev": "tsx --watch src/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -31,7 +28,11 @@
     "lint:fix": "biome check --write --unsafe .",
     "format": "biome format --write .",
     "bump": "npx npm-check-updates -u",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "keywords": [
     "todo-mcp",
@@ -56,6 +57,7 @@
     "@modelcontextprotocol/sdk": "^1.12.2",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.44.2",
+    "drizzle-zod": "^0.8.2",
     "pg": "^8.16.0",
     "postgres": "^3.4.7",
     "zod": "^3.25.64"

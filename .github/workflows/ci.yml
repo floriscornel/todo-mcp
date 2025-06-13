@@ -13,6 +13,21 @@ jobs:
       matrix:
         node-version: [18, 20, 22]
     
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: todo_mcp_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,13 +48,14 @@ jobs:
 
       - name: Run linting and formatting
         run: |
-          # Install and run Biome directly
-          npx @biomejs/biome@1.9.4 check .
+          ./vendor/bin/biome check .
 
       - name: Run type checking
         run: npm run compile
 
       - name: Run tests with JUnit output
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/todo_mcp_test
         run: |
           # Run tests with coverage and generate JUnit XML for Codecov Test Analytics
           npm run test:coverage:ci
