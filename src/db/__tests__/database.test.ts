@@ -341,5 +341,50 @@ describe("Database Operations", () => {
       const deletedTask = await todoDb.getTask(task.id);
       expect(deletedTask).toBeUndefined();
     });
+
+    it("should get task counts by list", async () => {
+      if (!databaseAvailable) {
+        console.log("⏭️  Skipping test - database not available");
+        return;
+      }
+
+      const list = await todoDb.createList({
+        name: "Task Counts Test List",
+        description: "List for testing task counts",
+      });
+
+      // Create various tasks
+      const task1 = await todoDb.createTask({
+        name: "Active Task",
+        priority: "low",
+        listId: list.id,
+      });
+
+      const task2 = await todoDb.createTask({
+        name: "Task to Complete",
+        priority: "medium",
+        listId: list.id,
+      });
+
+      const task3 = await todoDb.createTask({
+        name: "Task to Archive",
+        priority: "high",
+        listId: list.id,
+      });
+
+      // Complete one task
+      await todoDb.completeTask(task2.id);
+
+      // Archive one task
+      await todoDb.archiveTask(task3.id);
+
+      const counts = await todoDb.getTaskCountsByList(list.id);
+
+      expect(counts).toBeDefined();
+      expect(counts.total).toBe(3);
+      expect(counts.active).toBe(1); // Only task1 is active
+      expect(counts.completed).toBe(1); // task2 is completed
+      expect(counts.archived).toBe(1); // task3 is archived
+    });
   });
 });
