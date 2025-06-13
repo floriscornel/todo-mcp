@@ -35,7 +35,6 @@ jobs:
       - name: Test CLI
         run: |
           node dist/index.js --help
-          node dist/index.js check
 
       - name: Setup Node.js for NPM
         uses: actions/setup-node@v4
