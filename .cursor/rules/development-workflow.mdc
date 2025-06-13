@@ -26,6 +26,8 @@ Examples:
 - `test: add edge cases for task completion`
 
 ## Branch & PR Workflow
+You should not commit directly to the main branch!
+Use this flow for all requests:
 1. **Create feature branches** from `main`
 2. **Branch naming**: `feature/short-description` or `fix/issue-description`
 3. **Before creating PR**:
