@@ -33,7 +33,7 @@ async function startMcpServer() {
   // Create MCP server
   const server = new McpServer({
     name: "todo-mcp",
-    version: "0.1.0",
+    version: "0.1.1",
   });
 
   // Tool: Get all lists
