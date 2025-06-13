@@ -1,0 +1,65 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Pull Request Guidelines
+
+## Pre-PR Checklist
+When I ask to create a PR, ensure:
+
+1. **Code Quality**:
+   - [ ] `npm run test:coverage` passes with 80% coverage
+   - [ ] `npm run lint` passes without errors
+   - [ ] `npm run compile` succeeds
+   - [ ] `npm run build` creates clean distribution
+
+2. **Commit Structure**:
+   - [ ] Commits follow conventional format
+   - [ ] Each commit is focused and atomic
+   - [ ] Commit messages are descriptive
+
+3. **Documentation**:
+   - [ ] README updated if public API changed
+   - [ ] Code comments for complex logic
+   - [ ] CHANGELOG.md updated for user-facing changes
+
+## PR Description Template
+Structure PR descriptions for GitHub Copilot review:
+
+```markdown
+## Summary
+Brief description of what this PR accomplishes.
+
+## Changes
+- [ ] Feature/fix description
+- [ ] Any breaking changes
+- [ ] Dependencies added/updated
+
+## Testing
+- [ ] All tests pass with coverage
+- [ ] New tests added for new functionality
+- [ ] Manual testing completed
+
+## Review Notes
+- Areas that need special attention
+- Architecture decisions made
+- Trade-offs considered
+```
+
+## GitHub Copilot Review Preparation
+- Write clear, descriptive PR titles
+- Include context about the problem being solved
+- Explain non-obvious code decisions
+- Tag any breaking changes clearly
+- Reference related issues or discussions
+
+## Automated Checks
+The CI will automatically run:
+- Multi-version Node.js testing (18, 20, 22)
+- PostgreSQL integration tests
+- Code coverage reporting
+- Security audit
+- Build verification
+
+Don't merge until all CI checks pass.

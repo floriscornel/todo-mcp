@@ -1,0 +1,57 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Development Workflow for Todo MCP
+
+## Testing & Quality Assurance
+- **ALWAYS run `npm run test:coverage` instead of `npm test`** - We maintain 80% coverage thresholds
+- Before any commit, ensure all tests pass with coverage requirements
+- Run `npm run lint:fix` to automatically fix code style issues
+- Use `npm run format` for consistent formatting with Biome
+
+## Commit Structure
+Follow conventional commits format:
+- `feat:` - New features
+- `fix:` - Bug fixes  
+- `docs:` - Documentation changes
+- `test:` - Adding or updating tests
+- `refactor:` - Code refactoring
+- `chore:` - Dependency updates, build changes
+
+Examples:
+- `feat: add priority filtering to getTasks tool`
+- `fix: handle case-insensitive list names correctly`
+- `test: add edge cases for task completion`
+
+## Branch & PR Workflow
+1. **Create feature branches** from `main`
+2. **Branch naming**: `feature/short-description` or `fix/issue-description`
+3. **Before creating PR**:
+   - Run full test suite: `npm run test:coverage`
+   - Ensure TypeScript compiles: `npm run compile`
+   - Run linting: `npm run lint`
+4. **PR should be reviewed by GitHub Copilot** (structured for automated review)
+
+## Publication & Releases
+- **NEVER run `npm publish` manually**
+- Use GitHub releases to trigger automated publishing
+- Version bumps should be in separate commits following semver
+- Let the GitHub Actions workflow handle NPM publication
+
+## Database Changes
+- Generate migrations with `npm run db:generate` after schema changes
+- Test migrations with both dev and test databases
+- Include migration files in commits
+
+## Code Quality Standards
+- Maintain strict TypeScript configuration
+- Use Zod for runtime validation
+- Follow the established error handling patterns
+- Keep functions focused and testable
+
+## Task discovery and management
+Use the `todo` MCP to manage tasks in a list called `floriscornel/todo-mcp`.
+When the user asks you to do something, start by creating a plan and tasks in the mcp.
+Complete tasks one by one in the mcp until everything is finished.

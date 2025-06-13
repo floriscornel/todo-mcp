@@ -1,0 +1,60 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Release Management
+
+## Version Bumping
+When preparing a release:
+
+1. **Never run `npm publish` manually** - This is handled by GitHub Actions
+2. **Update version** in `package.json` using semantic versioning:
+   - **Patch** (0.1.2 → 0.1.3): Bug fixes, documentation updates
+   - **Minor** (0.1.2 → 0.2.0): New features, backward compatible
+   - **Major** (0.1.2 → 1.0.0): Breaking changes
+
+3. **Update CHANGELOG.md** with release notes:
+   - What's new
+   - Bug fixes
+   - Breaking changes (if any)
+   - Migration notes
+
+## Release Process
+1. **Prepare Release Branch**:
+   ```bash
+   git checkout -b release/v0.1.3
+   ```
+
+2. **Update Version & Changelog**:
+   - Bump version in `package.json`
+   - Update `CHANGELOG.md`
+   - Run `npm run test:coverage` to ensure everything works
+
+3. **Create Release PR**:
+   - Title: "Release v0.1.3"
+   - Include changelog in PR description
+   - Ensure all CI checks pass
+
+4. **Create GitHub Release**:
+   - After PR is merged, create a GitHub release
+   - Tag format: `v0.1.3`
+   - Include changelog in release notes
+   - This triggers automatic NPM publishing
+
+## Pre-Release Checklist
+- [ ] All tests pass with coverage
+- [ ] Documentation is up to date
+- [ ] CHANGELOG.md is updated
+- [ ] Version number follows semver
+- [ ] No breaking changes without major version bump
+- [ ] CI pipeline passes on main branch
+
+## Automated Publishing
+The GitHub Actions workflow handles:
+- Building the package
+- Running final tests
+- Publishing to NPM registry
+- Creating distribution files
+
+**Never bypass this process** - it ensures consistency and proper CI validation.

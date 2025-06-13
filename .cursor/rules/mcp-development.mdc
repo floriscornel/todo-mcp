@@ -1,0 +1,64 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# MCP Development Patterns
+
+## Tool Definition Structure
+When adding new MCP tools:
+
+1. **Tool Registration**:
+   ```typescript
+   server.tool(
+     "toolName",
+     "Clear description of what this tool does",
+     { /* Zod schema for parameters */ },
+     async (params) => { /* implementation */ }
+   );
+   ```
+
+2. **Parameter Validation**:
+   - Use Zod schemas for all parameters
+   - Provide clear descriptions for each parameter
+   - Include validation constraints (min/max length, etc.)
+   - Set sensible defaults where appropriate
+
+3. **Response Format**:
+   - Always return structured responses
+   - Include metadata when helpful
+   - Use consistent error handling
+   - Format dates with relative timestamps
+
+## Error Handling Patterns
+- Throw descriptive errors for invalid inputs
+- Include available options in error messages
+- Handle database connection failures gracefully
+- Validate foreign key relationships
+
+## Tool Naming Conventions
+- Use camelCase for tool names
+- Start with verb: `getTasks`, `createList`, `completeTask`
+- Be specific about what the tool does
+- Match the function to the tool name
+
+## Response Formatting
+- Use `formatRelativeTime()` for timestamps
+- Sort results consistently (priority first, then date)
+- Include relevant metadata in responses
+- Structure JSON responses with proper nesting
+
+## Testing MCP Tools
+- Test parameter validation
+- Test error scenarios
+- Test database interactions
+- Verify response formats
+- Test edge cases (empty results, missing data)
+
+## MCP Server Configuration
+- Set proper server name and version
+- Initialize database before starting server
+- Use stdio transport for Claude integration
+- Include proper metadata in responses
+
+@src/index.ts

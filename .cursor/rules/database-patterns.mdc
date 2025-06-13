@@ -1,0 +1,51 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Database Development Patterns
+
+## Schema Changes
+When modifying `src/db/schema.ts`:
+
+1. **Update Schema First**:
+   - Modify tables in `schema.ts`
+   - Update Zod validation schemas accordingly
+   - Ensure type safety between database and validation
+
+2. **Generate Migration**:
+   ```bash
+   npm run db:generate
+   ```
+
+3. **Test Migration**:
+   - Apply to development database: `npm run db:migrate`
+   - Verify migration works with test database
+   - Check that rollback is possible if needed
+
+## Database Operations
+- Use the `todoDb` interface from `src/db/index.ts`
+- All database operations should be type-safe with Drizzle
+- Use transactions for operations that modify multiple tables
+- Handle database errors gracefully with proper error types
+
+## Schema Patterns
+- Use `generatedAlwaysAsIdentity()` for primary keys
+- Include `createdAt` timestamp with `defaultNow()`
+- Use appropriate varchar lengths based on UI constraints
+- Foreign keys should have proper references with cascade rules
+
+## Migration Best Practices
+- Keep migrations focused and atomic
+- Test migrations with real data scenarios
+- Include both up and down migrations when possible
+- Document complex migrations with comments
+
+## Connection Management
+- Use environment variables for database URLs
+- Separate test and development databases
+- Connection pooling is handled by the postgres library
+- Always close connections in tests
+
+@src/db/schema.ts
+@src/db/postgres.ts

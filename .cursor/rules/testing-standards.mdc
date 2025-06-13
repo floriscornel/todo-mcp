@@ -1,0 +1,36 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Testing Standards
+
+## Coverage Requirements
+- **Minimum 80%** coverage for branches, functions, lines, and statements
+- Use `npm run test:coverage` to run tests with coverage reporting
+- Coverage reports available in `coverage/` directory
+
+## Test Structure
+- Follow the existing test patterns in `src/__tests__/`
+- Use Vitest with globals enabled
+- Test database setup in `src/test-utils/vitest.setup.ts`
+
+## Database Testing
+- Use `TEST_DATABASE_URL` environment variable for test database
+- Tests should be isolated and not affect each other
+- Clean up test data after each test
+
+## Test Naming
+- Describe what the test does: `should create task with valid data`
+- Group related tests with `describe` blocks
+- Use `beforeEach`/`afterEach` for setup/cleanup
+
+## Mock Patterns
+- Mock external dependencies consistently
+- Use Vitest's built-in mocking capabilities
+- Avoid mocking internal functions unless necessary
+
+## Test Data
+- Create meaningful test data that represents real usage
+- Use factories or builders for complex test objects
+- Keep test data minimal but realistic
