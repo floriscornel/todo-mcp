@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.1.3] - 2025-06-13
+
+### Improved
+- 🧪 **Enhanced test coverage**: Significantly improved test coverage from 92.66% to 98%
+  - Added comprehensive tests for task count functionality (`getTaskCountsByList`)
+  - Enhanced database operation testing with various task states (active, completed, archived)
+  - Improved postgres.ts coverage from 89.52% to 97.14%
+- ✅ **Better test reliability**: Enhanced test robustness with more comprehensive edge case testing
+
 ## [v0.1.2] - 2025-06-13
 
 ### Fixed
