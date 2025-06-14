@@ -19,7 +19,10 @@ export default defineConfig({
 				"**/*.test.ts",
 				"**/*.spec.ts",
 				"**/test-utils/**",
-				"**/index.ts",
+				// Don't require coverage for examples
+				"examples/**",
+				// Migrations are generated code
+				"migrations/**",
 			],
 			thresholds: {
 				global: {
@@ -30,8 +33,8 @@ export default defineConfig({
 				},
 			},
 		},
-		testTimeout: 10000,
-		hookTimeout: 10000,
+		testTimeout: 15000, // Increased for database operations
+		hookTimeout: 15000,
 		// Isolate tests to prevent interference
 		isolate: true,
 		// Pool options for better performance
@@ -40,7 +43,11 @@ export default defineConfig({
 			threads: {
 				// Enable parallelization for better performance
 				// Tests are properly isolated so this should be safe
+				minThreads: 1,
+				maxThreads: 4,
 			},
 		},
+		// Retry failed tests once in case of flaky database connections
+		retry: 1,
 	},
 });

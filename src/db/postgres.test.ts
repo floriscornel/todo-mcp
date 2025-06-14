@@ -1,8 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { initializeDatabase, todoDb } from "../index.js";
+import { initializeDatabase, todoDb } from "./index.js";
 
 describe("Database Operations", () => {
 	let databaseAvailable = false;
+	const isCI = process.env.CI === "true" || process.env.NODE_ENV === "test";
 
 	beforeAll(async () => {
 		try {
@@ -11,11 +12,23 @@ describe("Database Operations", () => {
 			databaseAvailable = true;
 			console.log("✅ Test database connected successfully");
 		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+
+			if (isCI) {
+				// In CI, database should always be available - fail hard
+				console.error("❌ Database connection failed in CI environment");
+				console.error(`Database error: ${errorMessage}`);
+				throw new Error(
+					`Database required in CI environment but connection failed: ${errorMessage}`,
+				);
+			}
+			// In local development, gracefully skip tests
 			console.warn("⚠️  Test database not available, skipping database tests");
 			console.warn(
 				"Make sure you have PostgreSQL running and TEST_DATABASE_URL configured",
 			);
-			console.warn(`Database error: ${error.message}`);
+			console.warn(`Database error: ${errorMessage}`);
 			databaseAvailable = false;
 		}
 	});
@@ -28,18 +41,24 @@ describe("Database Operations", () => {
 			} catch (error) {
 				console.warn(
 					"Warning: Error closing database connection:",
-					error.message,
+					error instanceof Error ? error.message : String(error),
 				);
 			}
 		}
 	});
 
+	// Helper function to skip tests when database is not available
+	const skipIfNoDatabaseInDev = () => {
+		if (!databaseAvailable && !isCI) {
+			console.log("⏭️  Skipping test - database not available in development");
+			return true;
+		}
+		return false;
+	};
+
 	describe("List Operations", () => {
 		it("should create a new list", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const list = await todoDb.createList({
 				name: "Test List",
@@ -54,10 +73,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should get a list by id", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const createdList = await todoDb.createList({
 				name: "Get Test List",
@@ -72,10 +88,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should get all lists", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const lists = await todoDb.getAllLists();
 			expect(Array.isArray(lists)).toBe(true);
@@ -83,10 +96,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should update a list", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const list = await todoDb.createList({
 				name: "Update Test List",
@@ -104,10 +114,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should archive a list", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const list = await todoDb.createList({
 				name: "Archive Test List",
@@ -123,10 +130,7 @@ describe("Database Operations", () => {
 
 	describe("Task Operations", () => {
 		it("should create a new task", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			// First create a list
 			const list = await todoDb.createList({
@@ -152,10 +156,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should complete a task", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			// First create a list and task
 			const list = await todoDb.createList({
@@ -177,10 +178,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should get tasks by list", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			// Create a list and add tasks
 			const list = await todoDb.createList({
@@ -208,10 +206,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should get all tasks", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const allTasks = await todoDb.getAllTasks();
 			expect(Array.isArray(allTasks)).toBe(true);
@@ -219,10 +214,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should get active tasks", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const activeTasks = await todoDb.getActiveTasks();
 			expect(Array.isArray(activeTasks)).toBe(true);
@@ -231,10 +223,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should get completed tasks", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const completedTasks = await todoDb.getCompletedTasks();
 			expect(Array.isArray(completedTasks)).toBe(true);
@@ -245,10 +234,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should update a task", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const list = await todoDb.createList({
 				name: "Update Task Test List",
@@ -275,10 +261,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should uncomplete a task", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const list = await todoDb.createList({
 				name: "Uncomplete Test List",
@@ -302,10 +285,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should archive a task", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const list = await todoDb.createList({
 				name: "Archive Task Test List",
@@ -325,10 +305,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should delete a task", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const list = await todoDb.createList({
 				name: "Delete Task Test List",
@@ -350,10 +327,7 @@ describe("Database Operations", () => {
 		});
 
 		it("should get task counts by list", async () => {
-			if (!databaseAvailable) {
-				console.log("⏭️  Skipping test - database not available");
-				return;
-			}
+			if (skipIfNoDatabaseInDev()) return;
 
 			const list = await todoDb.createList({
 				name: "Task Counts Test List",
