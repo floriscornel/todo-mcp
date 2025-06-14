@@ -221,6 +221,68 @@ You: "Great breakdown! I just checked the logs - mark that complete and add a ta
 - **Team Handoffs**: "Show the new developer what needs to be done on this feature"
 - **Progress Tracking**: "How much of the authentication system is complete?"
 
+## 🧪 Testing MCP Tools Directly
+
+The todo-mcp includes an `ExtendedMcpServer` class that makes it easy to test MCP tools directly without setting up transports. This is perfect for:
+
+- **Unit Testing** - Test individual tools in isolation
+- **Integration Testing** - Test workflows with multiple tool calls  
+- **Development & Debugging** - Explore tool behavior during development
+- **API Exploration** - Programmatically discover tool capabilities
+
+### Quick Example
+
+```typescript
+import { ExtendedMcpServer } from "@floriscornel/todo-mcp/utils";
+import { loadTodoService } from "@floriscornel/todo-mcp/service";
+import { initializeDatabase } from "@floriscornel/todo-mcp/db";
+
+// Initialize
+await initializeDatabase();
+const server = new ExtendedMcpServer({ name: "test", version: "1.0.0" });
+await loadTodoService(server);
+
+// Call tools directly
+const result = await server.callTool("createList", {
+  name: "My Test List",
+  description: "Created via direct tool call"
+});
+
+// Batch operations
+const results = await server.callTools([
+  { tool: "getLists", parameters: { random_string: "test" } },
+  { tool: "createTask", parameters: { list: "My Test List", name: "Test task" } }
+]);
+
+// Tool introspection
+const toolNames = server.getToolNames(); // ["getLists", "createList", ...]
+const toolInfo = server.getToolInfo("createTask"); // Full tool metadata
+const hasTools = server.hasTool("getTasks"); // true
+```
+
+### Available Testing Methods
+
+| Method | Purpose | 
+|--------|---------|
+| `callTool(name, params)` | Execute a single tool with parameters |
+| `callTools(calls)` | Execute multiple tools in sequence |
+| `getToolNames()` | List all available tool names |
+| `getToolInfo(name)` | Get detailed tool information |
+| `hasTool(name)` | Check if a tool exists |
+| `getToolsMetadata()` | Get metadata for all tools |
+
+### Example Script
+
+Check out the complete example at [`examples/test-tools-directly.ts`](examples/test-tools-directly.ts) which demonstrates:
+
+- Tool discovery and introspection
+- Creating lists and tasks
+- Error handling and validation
+- Batch operations
+- Integration testing patterns
+
+This makes the todo-mcp project highly testable and provides a solid foundation for building reliable MCP-based applications.
+
 ## 📖 How It Works
 
 ### Lists
