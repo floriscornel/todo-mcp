@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.2.0] - 2025-06-14
+
+### Added
+- 🎯 **Enhanced Type Safety**: Implemented database-level PostgreSQL enum for priority field
+  - Replaced `varchar` priority field with proper `priority` enum type
+  - Added compile-time type safety preventing invalid priority values
+  - Database-level constraints ensure data integrity
+
+### Improved
+- 🏗️ **Better Architecture**: Complete separation of concerns refactoring
+  - **Schema Layer**: Clean database schema focused purely on data structure
+  - **Application Layer**: UI constants (emojis) and validation messages moved to application level
+  - **Validation**: Dual validation approach with base schemas for database and enhanced schemas for MCP tools
+- 📦 **Reduced Code Duplication**: Eliminated manual schema duplication
+  - Leveraging `drizzle-zod` for auto-generated schemas always in sync with database
+  - Base schemas for database operations, enhanced schemas for user-facing validation
+- 🔧 **Developer Experience**: Improved maintainability and code organization
+  - Priority utilities (`priorityOrder`, `priorityEmojis`) centralized and reusable
+  - Better IntelliSense support with proper TypeScript types
+  - Cleaner error messages and validation feedback
+
+### Technical Details
+- Database migration generated for `varchar` to `enum` conversion
+- `createInsertSchema` and `createSelectSchema` from `drizzle-zod` for type-safe auto-generation
+- Priority enum: `pgEnum("priority", ["low", "medium", "high", "urgent"])`
+- Validation message separation enables better localization support
+- Maintains 100% backward compatibility
+
+**Migration Required**: Run `npm run db:migrate` to apply priority enum changes
+
 ## [v0.1.3] - 2025-06-13
 
 ### Improved

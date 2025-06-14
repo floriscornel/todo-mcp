@@ -1,9 +1,13 @@
-import { integer, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Priority enum
-export const priorityEnum = z.enum(["low", "medium", "high", "urgent"]);
-export type Priority = z.infer<typeof priorityEnum>;
+// Priority enum - defined at database level for better type safety
+export const priorityEnum = pgEnum("priority", ["low", "medium", "high", "urgent"]);
+export type Priority = (typeof priorityEnum.enumValues)[number];
+
+// Zod enum for validation (synced with database enum)
+export const priorityZodEnum = z.enum(priorityEnum.enumValues);
 
 // Lists table
 export const listsTable = pgTable("lists", {
@@ -22,38 +26,45 @@ export const tasksTable = pgTable("tasks", {
   createdAt: timestamp().notNull().defaultNow(),
   completedAt: timestamp(),
   archivedAt: timestamp(),
-  priority: varchar({ length: 20 }).notNull().default("medium"),
+  priority: priorityEnum().notNull().default("medium"),
   listId: integer()
     .notNull()
     .references(() => listsTable.id),
 });
 
-// Manual Zod schemas for validation
+// Auto-generated Zod schemas from Drizzle tables
+// These are always in sync with the database schema
+export const selectListSchema = createSelectSchema(listsTable);
+export const insertListSchema = createInsertSchema(listsTable);
+export const selectTaskSchema = createSelectSchema(tasksTable);
+export const insertTaskSchema = createInsertSchema(tasksTable);
+
+// Basic validation schemas without UI messages
 export const createListSchema = z.object({
-  name: z.string().min(1).max(255),
-  description: z.string().max(500).optional(),
+  name: z.string().min(1).max(255).trim(),
+  description: z.string().max(500).trim().optional(),
 });
 
 export const updateListSchema = z.object({
-  name: z.string().min(1).max(255).optional(),
-  description: z.string().max(500).optional(),
-  archivedAt: z.date().optional(),
+  name: z.string().min(1).max(255).trim().optional(),
+  description: z.string().max(500).trim().optional(),
+  archivedAt: z.date().nullable().optional(),
 });
 
 export const createTaskSchema = z.object({
-  name: z.string().min(1).max(255),
-  description: z.string().max(1000).optional(),
-  priority: priorityEnum.default("medium"),
+  name: z.string().min(5).max(120).trim(),
+  description: z.string().max(500).trim().optional(),
+  priority: priorityZodEnum.default("medium"),
   listId: z.number().int().positive(),
 });
 
 export const updateTaskSchema = z.object({
-  name: z.string().min(1).max(255).optional(),
-  description: z.string().max(1000).optional(),
-  priority: priorityEnum.optional(),
+  name: z.string().min(5).max(120).trim().optional(),
+  description: z.string().max(500).trim().optional(),
+  priority: priorityZodEnum.optional(),
+  listId: z.number().int().positive().optional(),
   completedAt: z.date().nullable().optional(),
   archivedAt: z.date().nullable().optional(),
-  listId: z.number().int().positive().optional(),
 });
 
 // Database result types (inferred from tables)
@@ -67,3 +78,11 @@ export type CreateList = z.infer<typeof createListSchema>;
 export type UpdateList = z.infer<typeof updateListSchema>;
 export type CreateTask = z.infer<typeof createTaskSchema>;
 export type UpdateTask = z.infer<typeof updateTaskSchema>;
+
+// Priority utilities
+export const priorityOrder: Record<Priority, number> = {
+  urgent: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+};

@@ -8,6 +8,13 @@
       "when": 1749825392391,
       "tag": "0000_secret_madripoor",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1749883367451,
+      "tag": "0001_slippery_jasper_sitwell",
+      "breakpoints": true
     }
   ]
 }

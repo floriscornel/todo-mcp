@@ -26,13 +26,8 @@ export const db = drizzle(sql, { schema });
 
 // Migration function
 export async function runMigrations() {
-  try {
-    const migrationsPath = path.join(__dirname, "../../migrations");
-    await migrate(db, { migrationsFolder: migrationsPath });
-  } catch (error) {
-    console.error("Migration failed:", error);
-    throw error;
-  }
+  const migrationsPath = path.join(__dirname, "../../migrations");
+  await migrate(db, { migrationsFolder: migrationsPath });
 }
 
 // Database operations

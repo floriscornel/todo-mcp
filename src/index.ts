@@ -4,7 +4,14 @@ import "dotenv/config";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { initializeDatabase, priorityEnum, todoDb } from "./db/index.js";
+import {
+  type Priority,
+  createTaskSchema,
+  initializeDatabase,
+  priorityOrder,
+  priorityZodEnum,
+  todoDb,
+} from "./db/index";
 
 // Utility function to format relative timestamps
 function formatRelativeTime(date: Date): string {
@@ -33,7 +40,7 @@ async function startMcpServer() {
   // Create MCP server
   const server = new McpServer({
     name: "todo-mcp",
-    version: "0.1.2",
+    version: "0.2.0",
   });
 
   // Tool: Get all lists
@@ -63,7 +70,6 @@ async function startMcpServer() {
             text: JSON.stringify(listsWithCounts, null, 2),
           },
         ],
-        metadata: getMetadata(),
       };
     }
   );
@@ -135,11 +141,8 @@ async function startMcpServer() {
         : allTasks.filter((t) => !t.completedAt && !t.archivedAt);
 
       // Sort by priority (urgent -> high -> medium -> low) and then by creation date
-      const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
       tasks.sort((a, b) => {
-        const priorityDiff =
-          priorityOrder[a.priority as keyof typeof priorityOrder] -
-          priorityOrder[b.priority as keyof typeof priorityOrder];
+        const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
         if (priorityDiff !== 0) return priorityDiff;
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       });
@@ -189,7 +192,7 @@ async function startMcpServer() {
         )
         .optional()
         .describe("Optional detailed description with additional context, requirements, or notes"),
-      priority: priorityEnum
+      priority: priorityZodEnum
         .default("medium")
         .describe(
           "Task priority level: 'low' (🟢), 'medium' (🟡), 'high' (🔴), or 'urgent' (🔥). Defaults to 'medium'. Use 'urgent' for critical issues, 'high' for important deadlines, 'medium' for regular work, 'low' for nice-to-have items."
@@ -206,24 +209,29 @@ async function startMcpServer() {
         );
       }
 
-      const task = await todoDb.createTask({
+      // Use the base schema for database operations (without UI messages)
+      const validatedTaskData = createTaskSchema.parse({
         name,
         description,
         priority,
         listId: targetList.id,
       });
 
-      const priorityEmoji: Record<string, string> = {
+      const task = await todoDb.createTask(validatedTaskData);
+
+      // UI Constants
+      const priorityEmojis: Record<Priority, string> = {
         urgent: "🔥",
         high: "🔴",
         medium: "🟡",
         low: "🟢",
       };
+
       return {
         content: [
           {
             type: "text",
-            text: `✅ Created task: ${task.name} ${priorityEmoji[priority]} (ID: ${task.id}) in list "${targetList.name}"`,
+            text: `✅ Created task: ${task.name} ${priorityEmojis[priority]} (ID: ${task.id}) in list "${targetList.name}"`,
           },
         ],
       };
@@ -342,11 +350,3 @@ main().catch((error) => {
   console.error("Failed to start:", error);
   process.exit(1);
 });
-
-function getMetadata() {
-  return {
-    "current-date": new Date().toISOString(),
-    "current-time": new Date().toLocaleTimeString(),
-    "current-timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
-  };
-}

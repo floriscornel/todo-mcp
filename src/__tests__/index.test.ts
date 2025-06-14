@@ -38,8 +38,8 @@ describe("Todo MCP Server", () => {
     it("should have valid priority enum values", async () => {
       const { priorityEnum } = await import("../db/index.js");
 
-      // Test that priority enum has expected values
-      expect(priorityEnum.options).toEqual(["low", "medium", "high", "urgent"]);
+      // Test that priority enum has expected values (PostgreSQL enum structure)
+      expect(priorityEnum.enumValues).toEqual(["low", "medium", "high", "urgent"]);
     });
   });
 
