@@ -7,7 +7,7 @@ export async function startStdioServer(
 	server: McpServer,
 	config: ApplicationConfig,
 ) {
-	logger.info("Starting MCP server with stdio transport", {
+	logger.debug("Starting MCP server with stdio transport", {
 		serverName: config.server.name,
 		version: config.server.version,
 		service: "todo",
@@ -17,5 +17,5 @@ export async function startStdioServer(
 	const transport = new StdioServerTransport();
 	await server.connect(transport);
 
-	logger.info("MCP server connected via stdio transport");
+	logger.debug("MCP server connected via stdio transport");
 }

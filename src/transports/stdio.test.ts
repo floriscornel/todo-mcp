@@ -68,7 +68,7 @@ describe("Stdio Transport", () => {
 
 			await startStdioServer(mockServer, config);
 
-			expect(mockLogger.info).toHaveBeenCalledWith(
+			expect(mockLogger.debug).toHaveBeenCalledWith(
 				"Starting MCP server with stdio transport",
 				{
 					serverName: "todo-mcp",
@@ -121,7 +121,7 @@ describe("Stdio Transport", () => {
 
 			await startStdioServer(mockServer, config);
 
-			expect(mockLogger.info).toHaveBeenCalledWith(
+			expect(mockLogger.debug).toHaveBeenCalledWith(
 				"Starting MCP server with stdio transport",
 				{
 					serverName: "custom-server",

@@ -110,7 +110,6 @@ export function createConfig(
 export const createLogger = (config: ApplicationConfig) => {
 	return {
 		debug: (message: string, meta?: Record<string, unknown>) => {
-			console.log(config.log.level);
 			if (config.log.level === "debug") {
 				console.debug(
 					`[DEBUG] ${message}`,
