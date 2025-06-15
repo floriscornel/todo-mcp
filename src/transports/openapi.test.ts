@@ -75,60 +75,18 @@ describe("OpenAPI Transport", () => {
 			}).not.toThrow();
 		});
 
-		test("should convert Zod schemas to OpenAPI compatible schemas", async () => {
-			const { convertZodToOpenApiSchema } = await import("./openapi.js");
-			const { z } = await import("zod");
-
-			// Test the convertZodToOpenApiSchema function
-			const testSchema = z.object({
-				name: z.string(),
-				count: z.number(),
-			});
-
-			const result = convertZodToOpenApiSchema(testSchema);
-			expect(result).toBeDefined();
-			expect(result._def).toBeDefined();
-		});
-
 		test("should generate correct endpoint paths from tool names", async () => {
 			const { generateEndpointPath } = await import("./openapi.js");
 
 			// Test endpoint path generation
-			expect(generateEndpointPath("getTasks")).toBe("/api/tools/get-tasks");
+			expect(generateEndpointPath("getTasks")).toBe("/api/get-tasks");
 			expect(generateEndpointPath("createTaskList")).toBe(
-				"/api/tools/create-task-list",
+				"/api/create-task-list",
 			);
-			expect(generateEndpointPath("simple")).toBe("/api/tools/simple");
+			expect(generateEndpointPath("simple")).toBe("/api/simple");
 			expect(generateEndpointPath("updateUserProfile")).toBe(
-				"/api/tools/update-user-profile",
+				"/api/update-user-profile",
 			);
-		});
-
-		test("should determine HTTP methods correctly", async () => {
-			const { getHttpMethod } = await import("./openapi.js");
-
-			// Test GET methods
-			expect(getHttpMethod("getTasks")).toBe("get");
-			expect(getHttpMethod("listItems")).toBe("get");
-			expect(getHttpMethod("retrieveData")).toBe("get");
-
-			// Test POST methods
-			expect(getHttpMethod("createTask")).toBe("post");
-			expect(getHttpMethod("addItem")).toBe("post");
-
-			// Test PUT methods
-			expect(getHttpMethod("updateTask")).toBe("put");
-			expect(getHttpMethod("modifyItem")).toBe("put");
-			expect(getHttpMethod("completeTask")).toBe("put");
-
-			// Test DELETE methods
-			expect(getHttpMethod("deleteTask")).toBe("delete");
-			expect(getHttpMethod("removeItem")).toBe("delete");
-			expect(getHttpMethod("archiveTask")).toBe("delete");
-
-			// Test default case
-			expect(getHttpMethod("processData")).toBe("post");
-			expect(getHttpMethod("randomAction")).toBe("post");
 		});
 	});
 

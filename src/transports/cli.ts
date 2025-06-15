@@ -1,4 +1,3 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ApplicationConfig } from "../utils/config.js";
 import { logger } from "../utils/config.js";
 import type { ExtendedMcpServer } from "../utils/extended-mcp-server.js";
@@ -8,10 +7,9 @@ import type { ExtendedMcpServer } from "../utils/extended-mcp-server.js";
  * This is useful for development, testing, and scripting
  */
 export async function startCliMode(
-	server: McpServer,
+	server: ExtendedMcpServer,
 	config: ApplicationConfig,
 ) {
-	const extendedServer = server as ExtendedMcpServer;
 	const { tool, parameters, list, interactive } = config.cli;
 
 	logger.info("Starting MCP server in CLI mode", {
@@ -26,7 +24,7 @@ export async function startCliMode(
 	// List available tools
 	if (list || (!tool && !interactive)) {
 		console.log("📋 Available Tools:");
-		const toolsMetadata = extendedServer.getToolsMetadata();
+		const toolsMetadata = server.getToolsMetadata();
 
 		for (const toolMeta of toolsMetadata) {
 			console.log(`  • ${toolMeta.name} - ${toolMeta.description}`);
@@ -70,7 +68,7 @@ export async function startCliMode(
 
 			// Execute the tool
 			const startTime = Date.now();
-			const result = await extendedServer.callTool(tool, parsedParams);
+			const result = await server.callTool(tool, parsedParams);
 			const duration = Date.now() - startTime;
 
 			console.log(`✅ Result (${duration}ms):`);

@@ -151,12 +151,6 @@ Examples:
 			config.mcp.transport = "cli";
 		}
 
-		logger.info("Starting Todo MCP Server", {
-			name: config.server.name,
-			version: config.server.version,
-			transport: config.mcp.transport,
-		});
-
 		// Create server and start transport
 		const server = await createMcpServer(config);
 		await startTransport(server, config);

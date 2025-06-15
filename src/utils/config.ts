@@ -93,48 +93,57 @@ export const config: ApplicationConfig = {
 export function createConfig(
 	overrides: Partial<ApplicationConfig> = {},
 ): ApplicationConfig {
-	return {
+	const appConfig = {
 		server: { ...config.server, ...overrides.server },
 		database: { ...config.database, ...overrides.database },
 		mcp: { ...config.mcp, ...overrides.mcp },
 		cli: { ...config.cli, ...overrides.cli },
 		log: { ...config.log, ...overrides.log },
 	};
+
+	logger = createLogger(appConfig);
+
+	return appConfig;
 }
 
 // Simple logger
-export const logger = {
-	debug: (message: string, meta?: Record<string, unknown>) => {
-		if (config.log.level === "debug") {
-			console.debug(
-				`[DEBUG] ${message}`,
+export const createLogger = (config: ApplicationConfig) => {
+	return {
+		debug: (message: string, meta?: Record<string, unknown>) => {
+			console.log(config.log.level);
+			if (config.log.level === "debug") {
+				console.debug(
+					`[DEBUG] ${message}`,
+					meta ? JSON.stringify(meta, null, 2) : "",
+				);
+			}
+		},
+		info: (message: string, meta?: Record<string, unknown>) => {
+			if (["debug", "info"].includes(config.log.level)) {
+				console.info(
+					`[INFO] ${message}`,
+					meta ? JSON.stringify(meta, null, 2) : "",
+				);
+			}
+		},
+		warn: (message: string, meta?: Record<string, unknown>) => {
+			if (["debug", "info", "warn"].includes(config.log.level)) {
+				console.warn(
+					`[WARN] ${message}`,
+					meta ? JSON.stringify(meta, null, 2) : "",
+				);
+			}
+		},
+		error: (message: string, meta?: Record<string, unknown>) => {
+			console.error(
+				`[ERROR] ${message}`,
 				meta ? JSON.stringify(meta, null, 2) : "",
 			);
-		}
-	},
-	info: (message: string, meta?: Record<string, unknown>) => {
-		if (["debug", "info"].includes(config.log.level)) {
-			console.info(
-				`[INFO] ${message}`,
-				meta ? JSON.stringify(meta, null, 2) : "",
-			);
-		}
-	},
-	warn: (message: string, meta?: Record<string, unknown>) => {
-		if (["debug", "info", "warn"].includes(config.log.level)) {
-			console.warn(
-				`[WARN] ${message}`,
-				meta ? JSON.stringify(meta, null, 2) : "",
-			);
-		}
-	},
-	error: (message: string, meta?: Record<string, unknown>) => {
-		console.error(
-			`[ERROR] ${message}`,
-			meta ? JSON.stringify(meta, null, 2) : "",
-		);
-	},
+		},
+	};
 };
+
+export let logger = createLogger(config);
 
 // Export for convenience
 export { defaultConfig };

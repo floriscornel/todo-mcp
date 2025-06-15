@@ -7,76 +7,11 @@ import type { ApplicationConfig } from "../utils/config.js";
 import { logger } from "../utils/config.js";
 import type { ExtendedMcpServer } from "../utils/extended-mcp-server.js";
 
-/**
- * Convert Zod schema to OpenAPI-compatible schema for display
- */
-export function convertZodToOpenApiSchema(
-	zodSchema: z.ZodTypeAny,
-): z.ZodTypeAny {
-	// For @hono/zod-openapi, we need to ensure the schema has proper descriptions
-	// The library handles the conversion internally, but we can enhance it here
-	return zodSchema.describe("Tool parameters");
-}
-
-/**
- * Generate REST endpoint path from MCP tool name
- */
-export function generateEndpointPath(toolName: string): string {
-	// Convert camelCase to kebab-case and add /api prefix
-	const kebabCase = toolName.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-	return `/api/tools/${kebabCase}`;
-}
-
-/**
- * Determine HTTP method based on tool name patterns
- */
-export function getHttpMethod(
-	toolName: string,
-): "get" | "post" | "put" | "delete" {
-	const name = toolName.toLowerCase();
-
-	if (
-		name.startsWith("get") ||
-		name.startsWith("list") ||
-		name.startsWith("retrieve")
-	) {
-		return "get";
-	}
-	if (name.startsWith("create") || name.startsWith("add")) {
-		return "post";
-	}
-	if (
-		name.startsWith("update") ||
-		name.startsWith("modify") ||
-		name.startsWith("complete")
-	) {
-		return "put";
-	}
-	if (
-		name.startsWith("delete") ||
-		name.startsWith("remove") ||
-		name.startsWith("archive")
-	) {
-		return "delete";
-	}
-
-	// Default to POST for tools that perform actions
-	return "post";
-}
-
 export async function startOpenApiServer(
 	server: ExtendedMcpServer,
 	config: ApplicationConfig,
 ) {
 	const { port, host } = config.server;
-
-	logger.info("Starting MCP server with OpenAPI transport", {
-		host,
-		port,
-		serverName: config.server.name,
-		version: config.server.version,
-		service: "todo",
-	});
 
 	const app = new OpenAPIHono();
 
@@ -137,7 +72,7 @@ export async function startOpenApiServer(
 				name: tool.name,
 				description: tool.description || "No description available",
 				endpoint: generateEndpointPath(tool.name),
-				method: getHttpMethod(tool.name).toUpperCase(),
+				method: "post",
 			}));
 
 			return c.json({
@@ -193,12 +128,18 @@ export async function startOpenApiServer(
 	for (const toolMeta of toolsMetadata) {
 		const toolInfo = server.getToolInfo(toolMeta.name);
 		const endpoint = generateEndpointPath(toolMeta.name);
-		const method = getHttpMethod(toolMeta.name);
+		const method = "post";
+		const requestSchema = toolInfo.inputSchema || z.object({});
+		const responseSchema = toolInfo.outputSchema || z.object({});
 
 		// Check if tool has parameters
 		const hasParameters =
 			toolInfo.inputSchema &&
 			Object.keys(toolInfo.inputSchema.shape || {}).length > 0;
+
+		const hasResponseSchema =
+			toolInfo.outputSchema &&
+			Object.keys(toolInfo.outputSchema.shape || {}).length > 0;
 
 		// Simplified route configuration to avoid complex TypeScript issues
 		const route = createRoute({
@@ -206,16 +147,28 @@ export async function startOpenApiServer(
 			path: endpoint,
 			summary: `${toolMeta.name} - ${toolMeta.description || "No description"}`,
 			description: toolMeta.description || "No description available",
+			request: hasParameters
+				? {
+						body: {
+							content: {
+								"application/json": {
+									schema: requestSchema,
+								},
+							},
+						},
+					}
+				: {},
 			responses: {
 				200: {
 					description: "Tool executed successfully",
 					content: {
 						"application/json": {
 							schema: z.object({
-								success: z.boolean(),
-								result: z.any().describe("Tool execution result"),
-								tool: z.string(),
-								executedAt: z.string(),
+								content: hasResponseSchema
+									? responseSchema
+									: z.object({
+											text: z.string().describe("Human readable response"),
+										}),
 							}),
 						},
 					},
@@ -225,66 +178,38 @@ export async function startOpenApiServer(
 					content: {
 						"application/json": {
 							schema: z.object({
-								success: z.boolean(),
 								error: z.string(),
-								tool: z.string(),
 							}),
 						},
 					},
 				},
 			},
-		} as const);
+		});
 
 		// Add the route handler
-		app.openapi(route, (async (c: Context) => {
+		app.openapi(route, async (c: Context) => {
 			try {
-				let parameters: Record<string, unknown> = {};
-
-				// Extract parameters based on HTTP method
-				if (method === "post" || method === "put") {
-					if (hasParameters) {
-						try {
-							parameters = await c.req.json();
-						} catch {
-							parameters = {};
-						}
-					}
-				} else if (method === "get" || method === "delete") {
-					if (hasParameters) {
-						parameters = Object.fromEntries(
-							new URL(c.req.url).searchParams.entries(),
-						);
-					}
-				}
+				const parameters = hasParameters ? await c.req.json() : {};
 
 				// Call the MCP tool
 				const result = await server.callTool(toolMeta.name, parameters);
 
-				return c.json({
-					success: true,
-					result,
-					tool: toolMeta.name,
-					executedAt: new Date().toISOString(),
-				});
+				return c.json(result, 200);
 			} catch (error) {
 				logger.error(`Tool ${toolMeta.name} execution failed`, {
 					error: error instanceof Error ? error.message : String(error),
-					tool: toolMeta.name,
 				});
 
 				return c.json(
 					{
-						success: false,
 						error: error instanceof Error ? error.message : String(error),
-						tool: toolMeta.name,
 					},
 					400,
 				);
 			}
-			// biome-ignore lint/suspicious/noExplicitAny: We need to use any here because the context is not typed
-		}) as any);
+		});
 
-		logger.info(
+		logger.debug(
 			`Generated endpoint: ${method.toUpperCase()} ${endpoint} -> ${toolMeta.name}`,
 		);
 	}
@@ -302,8 +227,9 @@ export async function startOpenApiServer(
 		);
 	});
 
-	logger.info(`🚀 Todo MCP OpenAPI Server starting on http://${host}:${port}`);
-	logger.info("📋 Mode: Auto-generated REST API from MCP Tools");
+	logger.info(
+		`🚀 ${config.server.name} ${config.server.version} OpenAPI Server starting on http://${host}:${port}`,
+	);
 	logger.info(`📖 Swagger UI: http://${host}:${port}/ui`);
 	logger.info(`📄 OpenAPI Spec: http://${host}:${port}/doc`);
 	logger.info(`❤️  Health Check: http://${host}:${port}/health`);
@@ -314,4 +240,10 @@ export async function startOpenApiServer(
 		port,
 		hostname: host,
 	});
+}
+
+export function generateEndpointPath(toolName: string): string {
+	// Convert camelCase to kebab-case and add /api prefix
+	const kebabCase = toolName.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+	return `/api/${kebabCase}`;
 }
