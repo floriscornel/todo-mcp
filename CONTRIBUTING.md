@@ -29,11 +29,11 @@ npm run db:migrate
 # Run tests to ensure everything works
 npm run test:coverage
 
-# Start development server (stdio mode)
+# Start development server (MCP stdio mode)
 npm run dev
 
 # Or start in different modes
-npm run dev:http         # HTTP server mode
+npm run dev:http         # MCP HTTP server mode
 npm run dev:openapi      # OpenAPI mode with Swagger UI
 npm run dev:auto-openapi # Auto-reloading OpenAPI mode
 ```
@@ -66,8 +66,8 @@ src/
 ├── service/           # Business logic layer
 │   └── todo.ts        # Todo service (MCP tools)
 ├── transports/        # Transport layer
-│   ├── stdio.ts       # Traditional MCP transport
-│   ├── http.ts        # HTTP server transport
+│   ├── stdio.ts       # MCP stdio transport (standard input/output)
+│   ├── http.ts        # MCP HTTP transport (streamable HTTP)
 │   ├── openapi.ts     # OpenAPI/Swagger transport
 │   └── cli.ts         # CLI transport
 ├── utils/             # Utility layer
@@ -93,8 +93,8 @@ src/
 
 #### 3. **Transport Layer** (`src/transports/`)
 - **Modular Design**: Each transport mode is self-contained
-- **stdio**: Traditional MCP for Claude Desktop
-- **http**: RESTful HTTP server with streaming support
+- **stdio**: MCP stdio transport for Claude Desktop (single agent)
+- **http**: MCP streamable HTTP transport for multi-agent access
 - **openapi**: Auto-generated REST API with Swagger UI
 - **cli**: Direct command-line tool execution
 

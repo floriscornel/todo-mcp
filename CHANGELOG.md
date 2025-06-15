@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🚀 Major New Features
 
 - 🌐 **Multiple Transport Modes**: Revolutionary expansion beyond traditional MCP
-  - **stdio** (default) - Traditional MCP for Claude Desktop integration
-  - **http** - RESTful streaming HTTP server for web integration
+  - **stdio** (default) - MCP stdio transport for Claude Desktop (single agent)
+  - **http** - MCP streamable HTTP transport for multi-agent web integration
   - **openapi** - Auto-generated REST API with Swagger UI documentation
   - **cli** - Direct command-line tool execution for automation and testing
 
@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Flexible configuration options (host, port, transport, log levels)
 
 - 📊 **HTTP Server**: Production-ready HTTP server with Hono framework
-  - Streaming HTTP transport for real-time MCP communication
+  - MCP streamable HTTP transport for multi-agent communication
   - CORS support for web applications
   - Health check endpoints for monitoring
   - Comprehensive error handling and logging

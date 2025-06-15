@@ -2,11 +2,15 @@
 
 [![npm version](https://img.shields.io/npm/v/@floriscornel/todo-mcp.svg)](https://www.npmjs.com/package/@floriscornel/todo-mcp)
 [![npm downloads](https://img.shields.io/npm/dm/@floriscornel/todo-mcp.svg)](https://www.npmjs.com/package/@floriscornel/todo-mcp)
-[![codecov](https://codecov.io/gh/floriscornel/todo-mcp/graph/badge.svg)](https://app.codecov.io/gh/floriscornel/todo-mcp)
+[![Codecov](https://img.shields.io/codecov/c/github/floriscornel/todo-mcp)](https://app.codecov.io/gh/floriscornel/todo-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/floriscornel/todo-mcp.svg)](https://github.com/floriscornel/todo-mcp/stargazers)
 
+> [!TIP]
+> To try it out, go to **[Quick Start](#-quick-start)**.
+
 A powerful, multi-mode Todo list manager that works everywhere - from Claude Desktop to web applications to command-line automation. Organize your tasks across different projects with priorities and never lose track of what needs to be done!
+
 
 ## ✨ Features
 
@@ -21,17 +25,17 @@ A powerful, multi-mode Todo list manager that works everywhere - from Claude Des
 
 Todo MCP now supports **four different modes** to fit any workflow:
 
-### 🤖 **MCP Mode** (Default)
-Traditional Model Context Protocol for Claude Desktop and MCP-compatible AI assistants.
+### 🤖 **MCP Mode: [Standard Input/Output (stdio)](https://modelcontextprotocol.io/docs/concepts/transports#streamable-http)** (Default)
+Traditional Model Context Protocol for Claude Desktop and MCP-compatible AI assistants. This starts a MCP server using the standard input/output (stdio) transport which is the default transport for MCP servers.
 
-### 🌐 **HTTP Mode** 
-REST API server for web applications and integrations.
+### 🌐 **MCP Mode: [Streamable HTTP](https://modelcontextprotocol.io/docs/concepts/transports#streamable-http)** 
+Streaming HTTP server is the replacement of SSE MCP mode. It uses HTTP communication to connect your agent to the MCP server, meaning they can be on different machines. It also allows one MCP server to be used by multiple agents simultaneously.
 
 ### 📚 **OpenAPI Mode**
-Auto-generated REST API with interactive Swagger UI documentation.
+Auto-generated REST API with interactive Swagger UI documentation. This allows tools that do not support MCP such as [open-webui](https://github.com/open-webui/open-webui) to access the MCP server. By accessing the OpenAPI documentation, and LLM with fetch capabilities can understand how to use the MCP server even if it does not support MCP.
 
 ### ⚡ **CLI Mode**
-Direct command-line tool execution for automation and scripting.
+Direct command-line tool execution for automation and scripting. This is useful for automation and scripting. You can manually perform tasks using the CLI.
 
 ## 🚀 Quick Start
 
@@ -71,9 +75,9 @@ volumes:
 
 ### Step 2: Choose Your Integration Mode
 
-#### 🤖 Claude Desktop (MCP Mode)
+#### 🤖 Claude Desktop (MCP stdio Mode)
 
-Add this to your Claude Desktop MCP settings:
+Add this to your Claude Desktop MCP settings to use the traditional stdio transport:
 
 ```json
 {
@@ -89,9 +93,9 @@ Add this to your Claude Desktop MCP settings:
 }
 ```
 
-#### 🌐 Web Application (HTTP Mode)
+#### 🌐 Web Application (MCP HTTP Mode)
 
-Start the HTTP server:
+Start the streamable HTTP server for multi-agent access:
 ```bash
 # Install globally
 npm install -g @floriscornel/todo-mcp
@@ -137,13 +141,13 @@ todo-mcp --transport cli --list
 
 ### Step 3: Start Using! 🎉
 
-**Claude Desktop users** can ask things like:
+**Claude Desktop users** (using stdio transport) can ask things like:
 - "Create a new list called 'Frontend Project'"
 - "Add a task to fix the login bug with high priority"
 - "Show me all my urgent tasks"
 - "Complete the task about updating dependencies"
 
-**Web developers** can make HTTP requests:
+**Web developers** (using HTTP transport) can make HTTP requests:
 ```bash
 # Get all lists
 curl http://localhost:3001/health
@@ -196,8 +200,8 @@ CLI Mode Options:
   --interactive        Start interactive CLI mode
 
 Examples:
-  todo-mcp                                              # MCP mode (default)
-  todo-mcp --transport http --port 3001                # HTTP server
+  todo-mcp                                              # MCP stdio mode (default)
+  todo-mcp --transport http --port 3001                # MCP HTTP server
   todo-mcp --transport openapi --port 3002             # OpenAPI + Swagger
   todo-mcp --transport cli --tool getLists             # CLI: list all lists
   todo-mcp --transport cli --list                      # CLI: show available tools
@@ -218,19 +222,20 @@ DATABASE_URL="postgresql://user:pass@your-db-host:5432/todo_mcp"
 
 ## 🌟 Use Cases by Mode
 
-### 🤖 **MCP Mode** - AI Integration
+### 🤖 **MCP stdio Mode** - AI Integration
 Perfect for:
-- Claude Desktop integration
+- Claude Desktop integration (single agent)
 - AI-assisted task management
 - Natural language task planning
 - Context-aware todo management
 
-### 🌐 **HTTP Mode** - Web Applications
+### 🌐 **MCP HTTP Mode** - Multi-Agent Web Applications  
 Perfect for:
+- Multiple agents accessing the same server
 - React/Vue/Angular web apps
 - Mobile app backends
 - Microservice architectures
-- Real-time web integrations
+- Cross-machine MCP communication
 
 ### 📚 **OpenAPI Mode** - API Development
 Perfect for:
