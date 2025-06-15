@@ -49,6 +49,9 @@ describe("Stdio Transport", () => {
 					port: 3000,
 					host: "localhost",
 				},
+				log: {
+					level: "debug",
+				},
 			});
 
 			await startStdioServer(mockServer, config);
@@ -64,6 +67,9 @@ describe("Stdio Transport", () => {
 					port: 3000,
 					host: "localhost",
 				},
+				log: {
+					level: "debug",
+				},
 			});
 
 			await startStdioServer(mockServer, config);
@@ -77,7 +83,7 @@ describe("Stdio Transport", () => {
 				},
 			);
 
-			expect(mockLogger.info).toHaveBeenCalledWith(
+			expect(mockLogger.debug).toHaveBeenCalledWith(
 				"MCP server connected via stdio transport",
 			);
 		});
