@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/floriscornel/todo-mcp.svg)](https://github.com/floriscornel/todo-mcp/stargazers)
 
-A simple, powerful Todo list manager for Claude Desktop and other MCP-compatible AI assistants. Organize your tasks across different projects with priorities and never lose track of what needs to be done!
+A powerful, multi-mode Todo list manager that works everywhere - from Claude Desktop to web applications to command-line automation. Organize your tasks across different projects with priorities and never lose track of what needs to be done!
 
 ## ✨ Features
 
@@ -16,6 +16,22 @@ A simple, powerful Todo list manager for Claude Desktop and other MCP-compatible
 - 🕒 **Time Tracking** - Automatic timestamps for creation, completion, and archiving
 - 🔍 **Smart Sorting** - Tasks sorted by priority and age automatically
 - 💾 **Persistent Storage** - Uses PostgreSQL for reliable data storage
+
+## 🌐 Multiple Usage Modes
+
+Todo MCP now supports **four different modes** to fit any workflow:
+
+### 🤖 **MCP Mode** (Default)
+Traditional Model Context Protocol for Claude Desktop and MCP-compatible AI assistants.
+
+### 🌐 **HTTP Mode** 
+REST API server for web applications and integrations.
+
+### 📚 **OpenAPI Mode**
+Auto-generated REST API with interactive Swagger UI documentation.
+
+### ⚡ **CLI Mode**
+Direct command-line tool execution for automation and scripting.
 
 ## 🚀 Quick Start
 
@@ -53,7 +69,9 @@ volumes:
 2. Run: `docker-compose up -d`
 3. Create test database: `docker exec -it <container_name> createdb -U postgres todo_mcp_test`
 
-### Step 2: Configure Claude Desktop
+### Step 2: Choose Your Integration Mode
+
+#### 🤖 Claude Desktop (MCP Mode)
 
 Add this to your Claude Desktop MCP settings:
 
@@ -71,13 +89,162 @@ Add this to your Claude Desktop MCP settings:
 }
 ```
 
+#### 🌐 Web Application (HTTP Mode)
+
+Start the HTTP server:
+```bash
+# Install globally
+npm install -g @floriscornel/todo-mcp
+
+# Start HTTP server
+todo-mcp --transport http --port 3001
+
+# Or using npx
+npx @floriscornel/todo-mcp --transport http --port 3001
+```
+
+Your todo API is now available at `http://localhost:3001`!
+
+#### 📚 API Development (OpenAPI Mode)
+
+Start with interactive documentation:
+```bash
+# Start OpenAPI server with Swagger UI
+todo-mcp --transport openapi --port 3002
+
+# Or using npx
+npx @floriscornel/todo-mcp --transport openapi --port 3002
+```
+
+Visit `http://localhost:3002/ui` for interactive API documentation!
+
+#### ⚡ Command Line (CLI Mode)
+
+Use directly from the command line:
+```bash
+# List all your todo lists
+todo-mcp --transport cli --tool getLists
+
+# Get tasks from a specific list
+todo-mcp --transport cli --tool getTasks --parameters '{"list":"work"}'
+
+# Create a new task
+todo-mcp --transport cli --tool createTask --parameters '{"list":"work","name":"Fix login bug","priority":"high"}'
+
+# List all available tools
+todo-mcp --transport cli --list
+```
+
 ### Step 3: Start Using! 🎉
 
-Ask Claude things like:
+**Claude Desktop users** can ask things like:
 - "Create a new list called 'Frontend Project'"
 - "Add a task to fix the login bug with high priority"
 - "Show me all my urgent tasks"
 - "Complete the task about updating dependencies"
+
+**Web developers** can make HTTP requests:
+```bash
+# Get all lists
+curl http://localhost:3001/health
+
+# MCP over HTTP (JSON-RPC 2.0)
+curl -X POST http://localhost:3001/ \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"getLists"},"id":1}'
+```
+
+**API developers** can explore the interactive docs at `http://localhost:3002/ui` and use endpoints like:
+```bash
+# Get all lists via REST API
+curl http://localhost:3002/api/get-lists
+
+# Create a task via REST API
+curl -X POST http://localhost:3002/api/create-task \
+  -H "Content-Type: application/json" \
+  -d '{"list":"work","name":"New task","priority":"medium"}'
+```
+
+## 🔧 Configuration & Command Line Options
+
+### Environment Variables
+
+```bash
+# Main database (required)
+DATABASE_URL="postgresql://username:password@localhost:5432/todo_mcp"
+
+# Test database (optional, for development)
+TEST_DATABASE_URL="postgresql://username:password@localhost:5432/todo_mcp_test"
+```
+
+### Command Line Usage
+
+```bash
+todo-mcp [options]
+
+Options:
+  --transport <type>      Transport mode: stdio|http|openapi|cli (default: stdio)
+  --host <host>          Server host for http/openapi modes (default: localhost)
+  --port <port>          Server port for http/openapi modes (default: 3000)
+  --log-level <level>    Log level: debug|info|warn|error (default: info)
+  --no-db               Disable database requirement (for testing)
+
+CLI Mode Options:
+  --tool <name>         Tool to execute
+  --parameters <json>   Tool parameters as JSON string
+  --list               List all available tools
+  --interactive        Start interactive CLI mode
+
+Examples:
+  todo-mcp                                              # MCP mode (default)
+  todo-mcp --transport http --port 3001                # HTTP server
+  todo-mcp --transport openapi --port 3002             # OpenAPI + Swagger
+  todo-mcp --transport cli --tool getLists             # CLI: list all lists
+  todo-mcp --transport cli --list                      # CLI: show available tools
+```
+
+### Database Connection Examples
+
+```bash
+# Local PostgreSQL
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/todo_mcp"
+
+# Docker
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/todo_mcp"
+
+# Remote database (replace with your details)
+DATABASE_URL="postgresql://user:pass@your-db-host:5432/todo_mcp"
+```
+
+## 🌟 Use Cases by Mode
+
+### 🤖 **MCP Mode** - AI Integration
+Perfect for:
+- Claude Desktop integration
+- AI-assisted task management
+- Natural language task planning
+- Context-aware todo management
+
+### 🌐 **HTTP Mode** - Web Applications
+Perfect for:
+- React/Vue/Angular web apps
+- Mobile app backends
+- Microservice architectures
+- Real-time web integrations
+
+### 📚 **OpenAPI Mode** - API Development
+Perfect for:
+- API documentation
+- Testing and debugging
+- Third-party integrations
+- Developer onboarding
+
+### ⚡ **CLI Mode** - Automation
+Perfect for:
+- CI/CD pipeline integration
+- Shell scripts and automation
+- Development workflows
+- System administration tasks
 
 ## 💡 Real-World Examples
 
@@ -313,31 +480,6 @@ The MCP provides these tools for Claude:
 - `createTask(list, name, description?, priority?)` - Add a new task
 - `completeTask(taskId)` - Mark a task as done
 - `archiveTask(taskId)` - Archive a task (removes from active view)
-
-## 🔧 Configuration
-
-### Environment Variables
-
-```bash
-# Main database (required)
-DATABASE_URL="postgresql://username:password@localhost:5432/todo_mcp"
-
-# Test database (optional, for development)
-TEST_DATABASE_URL="postgresql://username:password@localhost:5432/todo_mcp_test"
-```
-
-### Database Connection Examples
-
-```bash
-# Local PostgreSQL
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/todo_mcp"
-
-# Docker
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/todo_mcp"
-
-# Remote database (replace with your details)
-DATABASE_URL="postgresql://user:pass@your-db-host:5432/todo_mcp"
-```
 
 ## 🧪 Development
 
