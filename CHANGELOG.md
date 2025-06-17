@@ -7,33 +7,100 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.2.0] - 2025-06-14
 
-### Added
-- 🎯 **Enhanced Type Safety**: Implemented database-level PostgreSQL enum for priority field
+### 🚀 Major New Features
+
+- 🌐 **Multiple Transport Modes**: Revolutionary expansion beyond traditional MCP
+  - **stdio** (default) - MCP stdio transport for Claude Desktop (single agent)
+  - **http** - MCP streamable HTTP transport for multi-agent web integration
+  - **openapi** - Auto-generated REST API with Swagger UI documentation
+  - **cli** - Direct command-line tool execution for automation and testing
+
+- 🔧 **Full CLI Interface**: Complete command-line interface with Commander.js
+  - Interactive and non-interactive modes
+  - Direct tool execution: `todo-mcp --transport cli --tool getTasks --parameters '{"list":"work"}'`
+  - Built-in help system and examples
+  - Flexible configuration options (host, port, transport, log levels)
+
+- 📊 **HTTP Server**: Production-ready HTTP server with Hono framework
+  - MCP streamable HTTP transport for multi-agent communication
+  - CORS support for web applications
+  - Health check endpoints for monitoring
+  - Comprehensive error handling and logging
+
+- 🔍 **OpenAPI Integration**: Auto-generated REST API from MCP tools
+  - Interactive Swagger UI documentation at `/ui`
+  - OpenAPI 3.0 specification at `/doc` 
+  - Automatic endpoint generation from MCP tool definitions
+  - Type-safe request/response schemas with Zod validation
+  - Tool discovery and metadata endpoints
+
+### 🎯 Enhanced Type Safety & Architecture
+
+- 🏗️ **Database-level Type Safety**: PostgreSQL enum for priority field
   - Replaced `varchar` priority field with proper `priority` enum type
-  - Added compile-time type safety preventing invalid priority values
+  - Compile-time type safety preventing invalid priority values
   - Database-level constraints ensure data integrity
 
-### Improved
-- 🏗️ **Better Architecture**: Complete separation of concerns refactoring
+- 📦 **Improved Architecture**: Complete separation of concerns refactoring
   - **Schema Layer**: Clean database schema focused purely on data structure
   - **Application Layer**: UI constants (emojis) and validation messages moved to application level
-  - **Validation**: Dual validation approach with base schemas for database and enhanced schemas for MCP tools
-- 📦 **Reduced Code Duplication**: Eliminated manual schema duplication
-  - Leveraging `drizzle-zod` for auto-generated schemas always in sync with database
-  - Base schemas for database operations, enhanced schemas for user-facing validation
-- 🔧 **Developer Experience**: Improved maintainability and code organization
+  - **Transport Layer**: Modular transport system supporting multiple protocols
+  - **Validation**: Dual validation approach with base schemas for database and enhanced schemas for tools
+
+- � **Developer Experience**: Significantly improved maintainability
   - Priority utilities (`priorityOrder`, `priorityEmojis`) centralized and reusable
   - Better IntelliSense support with proper TypeScript types
   - Cleaner error messages and validation feedback
+  - Eliminated code duplication with `drizzle-zod` auto-generation
 
-### Technical Details
+### 🛠️ Technical Implementation
+
+- **Transport Architecture**: Modular transport system with clean interfaces
+- **Hono Integration**: Modern web framework for HTTP/OpenAPI modes
+- **Commander.js**: Professional CLI interface with comprehensive option parsing
+- **Auto-generated APIs**: Dynamic REST endpoint creation from MCP tool metadata
+- **Enhanced Logging**: Structured logging with configurable levels across all transports
+- **Type-safe Configuration**: Complete configuration system with validation
+
+### � Breaking Changes
+
+⚠️ **CLI Interface**: The command-line interface has been completely redesigned
+- **Old**: `node dist/index.js` (stdio only)
+- **New**: `todo-mcp [options]` with full CLI support
+
+**Migration Guide**:
+```bash
+# Old way (still works as default)
+node dist/index.js
+
+# New equivalent
+todo-mcp
+# or explicitly
+todo-mcp --transport stdio
+
+# New features
+todo-mcp --transport http --port 3001        # HTTP server
+todo-mcp --transport openapi --port 3002     # OpenAPI + Swagger UI
+todo-mcp --transport cli --tool getLists     # Direct CLI execution
+```
+
+### 🔄 Database Migration
+
+**Migration Required**: Run `npm run db:migrate` to apply priority enum changes
 - Database migration generated for `varchar` to `enum` conversion
 - `createInsertSchema` and `createSelectSchema` from `drizzle-zod` for type-safe auto-generation
 - Priority enum: `pgEnum("priority", ["low", "medium", "high", "urgent"])`
-- Validation message separation enables better localization support
-- Maintains 100% backward compatibility
+- Maintains 100% backward compatibility with existing data
 
-**Migration Required**: Run `npm run db:migrate` to apply priority enum changes
+### 📦 New Dependencies
+
+- `@hono/node-server` - HTTP server runtime
+- `@hono/swagger-ui` - Swagger UI integration
+- `@hono/zod-openapi` - OpenAPI schema generation
+- `commander` - CLI framework
+- `hono` - Web framework for HTTP/API modes
+
+**Compatibility**: Maintains full backward compatibility for existing MCP integrations
 
 ## [v0.1.3] - 2025-06-13
 
