@@ -5,9 +5,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import {
-  type Priority,
   createTaskSchema,
   initializeDatabase,
+  type Priority,
   priorityOrder,
   priorityZodEnum,
   todoDb,
@@ -40,7 +40,7 @@ async function startMcpServer() {
   // Create MCP server
   const server = new McpServer({
     name: "todo-mcp",
-    version: "0.2.0",
+    version: "0.2.1",
   });
 
   // Tool: Get all lists

@@ -354,7 +354,7 @@ describe("Database Operations", () => {
       });
 
       // Create various tasks
-      const task1 = await todoDb.createTask({
+      const _task1 = await todoDb.createTask({
         name: "Active Task",
         priority: "low",
         listId: list.id,
