@@ -67,7 +67,7 @@
     "@biomejs/biome": "^2.0.6",
     "@types/node": "^24.0.9",
     "@types/pg": "^8.15.4",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.0.10",
     "drizzle-kit": "^0.31.4",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
