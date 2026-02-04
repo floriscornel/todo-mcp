@@ -55,7 +55,7 @@
     "url": "https://github.com/floriscornel/todo-mcp/issues"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.13.3",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "dotenv": "^17.0.1",
     "drizzle-orm": "^0.44.2",
     "drizzle-zod": "^0.8.2",
